@@ -446,48 +446,6 @@ function windowLoadInit() {
 		jQuery('#comingsoon-countdown').countdown({until: demoDate});
 	}
 
-	/////////////////////////////////////////////////
-	//PHP widgets - contact form, search, MailChimp//
-	/////////////////////////////////////////////////
-
-	//contact form processing
-	// jQuery('form.contact-form').on('submit', function( e ){
-	// 	e.preventDefault();
-	// 	var $form = jQuery(this);
-	// 	jQuery($form).find('span.contact-form-respond').remove();
-
-	// 	//checking on empty values
-	// 	jQuery($form).find('[aria-required="true"], [required]').each(function(index) {
-	// 		var $thisRequired = jQuery(this);
-	// 		if (!$thisRequired.val().length) {
-	// 			$thisRequired
-	// 				.addClass('invalid')
-	// 				.on('focus', function(){
-	// 					$thisRequired
-	// 						.removeClass('invalid');
-	// 				});
-	// 		}
-	// 	});
-	// 	//if one of form fields is empty - exit
-	// 	if ($form.find('[aria-required="true"], [required]').hasClass('invalid')) {
-	// 		return;
-	// 	}
-
-	// 	//sending form data to PHP server if fields are not empty
-	// 	// var request = $form.serialize();
-	// 	// var ajax = jQuery.post( "contact-form.php", request )
-	// 	// .done(function( data ) {
-	// 	// 	jQuery($form).find('[type="submit"]').attr('disabled', false).parent().append('<span class="contact-form-respond highlight">'+data+'</span>');
-	// 	// 	//cleaning form
-	// 	// 	var $formErrors = $form.find('.form-errors');
-	// 	// 	if ( !$formErrors.length ) {
-	// 	// 		$form[0].reset();
-	// 	// 	}
-	// 	// })
-	// 	// .fail(function( data ) {
-	// 	// 	jQuery($form).find('[type="submit"]').attr('disabled', false).parent().append('<span class="contact-form-respond highlight">Mail cannot be sent. You need PHP server to send mail.</span>');
-	// 	// })
-	// });
 
 
 	//search modal
@@ -531,35 +489,6 @@ function windowLoadInit() {
 			
 		})
 	});
-
-	//MailChimp subscribe form processing
-	jQuery('.signup').on('submit', function( e ) {
-		e.preventDefault();
-		var $form = jQuery(this);
-		// update user interface
-		$form.find('.response').html('Adding email address...');
-		// Prepare query string and send AJAX request
-		jQuery.ajax({
-			url: 'mailchimp/store-address.php',
-			data: 'ajax=true&email=' + escape($form.find('.mailchimp_email').val()),
-			success: function(msg) {
-				$form.find('.response').html(msg);
-			}
-		});
-	});
-	
-	//twitter
-	if (jQuery().tweet) {
-		jQuery('.twitter').tweet({
-			modpath: "./twitter/",
-			count: 1,
-			avatar_size: 48,
-			loading_text: 'loading twitter feed...',
-			join_text: 'auto',
-			username: 'michaeljackson', 
-			template: "<span class=\"darklinks\">{user}</span><span class=\"tweet_text\">{tweet_text}</span><span class=\"highlightlinks\">{time}</span>"
-		});
-	}
 
 
 	//adding CSS classes for elements that needs different styles depending on they widht width
@@ -1008,28 +937,6 @@ function windowLoadInit() {
 
 	} //appear check
 
-	//Flickr widget
-	// use http://idgettr.com/ to find your ID
-	if (jQuery().jflickrfeed) {
-		var $flickr = jQuery("#flickr, .flickr_ul");
-		if ( $flickr.length ) {
-			if ( ! ( $flickr.hasClass('flickr_loaded') ) ) {
-				$flickr.jflickrfeed({
-					flickrbase: "http://api.flickr.com/services/feeds/",
-					limit: 4,
-					qstrings: {
-						id: "131791558@N04"
-					},
-					itemTemplate: '<a href="{{image_b}}" data-gal="prettyPhoto[pp_gal]"><li><img alt="{{title}}" src="{{image_m}}" /></li></a>'
-				}, function(data) {
-					$flickr.find('a').prettyPhoto({
-						hook: 'data-gal',
-						theme: 'facebook'
-					});
-				}).addClass('flickr_loaded');
-			}
-		}
-	}
 
 	// Instagram widget
 	if(jQuery().spectragram) {
@@ -1131,64 +1038,6 @@ function windowLoadInit() {
 $window.on('load', function(){
 	windowLoadInit();
 
-	//Google Map script
-	var $googleMaps = jQuery('#map, .page_map');
-	if ( $googleMaps.length ) {
-		$googleMaps.each(function() {
-			var $map = jQuery(this);
-
-			var lat;
-			var lng;
-			var map;
-
-			//map styles. You can grab different styles on https://snazzymaps.com/
-			var styles = [{"featureType": "administrative","elementType": "labels.text.fill","stylers": [{"color": "#444444"}]},{"featureType": "landscape","elementType": "all","stylers": [{"color": "#f2f2f2"}]},{"featureType": "poi","elementType": "all","stylers": [{"visibility": "off"}]},{"featureType": "road","elementType": "all","stylers": [{"saturation": -100},{"lightness": 45}]},{"featureType": "road.highway","elementType": "all","stylers": [{"visibility": "simplified"}]},{"featureType": "road.arterial","elementType": "labels.icon","stylers": [{"visibility": "off"}]},{"featureType": "transit","elementType": "all","stylers": [{"visibility": "off"}]},{"featureType": "water","elementType": "all","stylers": [{"color": "#46bcec"},{"visibility": "on"}]}];
-			
-			//map settings
-			var address = $map.data('address') ? $map.data('address') : 'london, baker street, 221b';
-			var markerDescription = $map.find('.map_marker_description').prop('outerHTML');
-
-			//if you do not provide map title inside #map (.page_map) section inside H3 tag - default titile (Map Title) goes here:
-			var markerTitle = $map.find('h3').first().text() ? $map.find('h3').first().text() : 'Map Title';
-			var markerIconSrc = $map.find('.map_marker_icon').first().attr('src');
-
-			//type your address after "address="
-			jQuery.getJSON('http://maps.googleapis.com/maps/api/geocode/json?address=' + address, function(data) {
-				
-				lat = data.results[0].geometry.location.lat;
-				lng = data.results[0].geometry.location.lng;
-
-			}).complete(function(){
-				
-				var center = new google.maps.LatLng(lat, lng);
-				var settings = {
-					mapTypeId: google.maps.MapTypeId.ROADMAP,
-					zoom: 13,
-					draggable: true,
-					scrollwheel: false,
-					center: center,
-					styles: styles 
-				};
-				map = new google.maps.Map($map[0], settings);
-
-				var marker = new google.maps.Marker({
-					position: center,
-					title: markerTitle,
-					map: map,
-					icon: markerIconSrc,
-				});
-
-				var infowindow = new google.maps.InfoWindow({ 
-					content: markerDescription
-				});
-				
-				google.maps.event.addListener(marker, 'click', function() {
-					infowindow.open(map,marker);
-				});
-
-			});
-		}); //each
-	}//google map length
 
 	// color for placeholder of select elements
 	jQuery(".choice").on('change', function () {
